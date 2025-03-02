@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏选择 - 自闭症儿童互动游戏</title>
+    <style>
+        body {
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #4a86e8;
+            color: white;
+            width: 100%;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .intro {
+            text-align: center;
+            margin-bottom: 40px;
+            line-height: 1.6;
+            font-size: 1.2em;
+        }
+        .game-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        .game-card {
+            background-color: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 20px rgba(0,0,0,0.15);
+        }
+        .game-image {
+            height: 180px;
+            background-color: #e6f2ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            color: #4a86e8;
+        }
+        .game-info {
+            padding: 20px;
+        }
+        .game-title {
+            font-size: 1.5em;
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .game-description {
+            color: #666;
+            line-height: 1.5;
+        }
+        .benefits {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #4a86e8;
+        }
+        footer {
+            background-color: #333;
+            color: white;
+            width: 100%;
+            padding: 20px 0;
+            text-align: center;
+            margin-top: auto;
+        }
+        @media (max-width: 768px) {
+            .game-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>自闭症儿童互动游戏</h1>
+    </header>
+
+    <div class="container">
+        <div class="intro">
+            <p>欢迎来到专为非语言自闭症儿童设计的互动游戏平台。这些游戏旨在通过有趣的互动方式促进沟通技能、感官体验和社交能力的发展。</p>
+            <p>请从以下选项中选择一个游戏：</p>
+        </div>
+
+        <div class="game-options">
+            <div class="game-card" onclick="location.href='games/matching-game/index.html'">
+                <div class="game-image">🎭</div>
+                <div class="game-info">
+                    <h2 class="game-title">表情配对游戏</h2>
+                    <p class="game-description">通过匹配相同的表情卡片来提高记忆力和情绪识别能力。</p>
+                    <p class="benefits">益处：情绪识别、记忆力、专注力</p>
+                </div>
+            </div>
+
+            <div class="game-card" onclick="location.href='games/sound-board/index.html'">
+                <div class="game-image">🔊</div>
+                <div class="game-info">
+                    <h2 class="game-title">声音互动板</h2>
+                    <p class="game-description">点击不同的图片发出相应的声音，帮助建立声音与图像的联系。</p>
+                    <p class="benefits">益处：听觉刺激、因果关系理解、选择表达</p>
+                </div>
+            </div>
+
+            <div class="game-card" onclick="location.href='games/drawing-canvas/index.html'">
+                <div class="game-image">🎨</div>
+                <div class="game-info">
+                    <h2 class="game-title">创意绘画画布</h2>
+                    <p class="game-description">自由绘画和创作，带有特殊的视觉和声音效果反馈。</p>
+                    <p class="benefits">益处：创造性表达、精细运动技能、感官反馈</p>
+                </div>
+            </div>
+
+            <div class="game-card" onclick="location.href='games/sequence-game/index.html'">
+                <div class="game-image">📋</div>
+                <div class="game-info">
+                    <h2 class="game-title">日常活动排序</h2>
+                    <p class="game-description">将日常活动的步骤按正确顺序排列，帮助理解生活规律。</p>
+                    <p class="benefits">益处：序列理解、生活技能、规划能力</p>
+                </div>
+            </div>
+
+            <div class="game-card" onclick="location.href='games/calm-space/index.html'">
+                <div class="game-image">🌈</div>
+                <div class="game-info">
+                    <h2 class="game-title">平静空间</h2>
+                    <p class="game-description">提供视觉和听觉的平静体验，帮助缓解焦虑和过度刺激。</p>
+                    <p class="benefits">益处：情绪调节、感官整合、放松技巧</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>专为非语言自闭症儿童设计 | 所有游戏均可在浏览器中运行，无需安装</p>
+    </footer>
+
+    <script>
+        // 简单的脚本，未来可以添加更多功能
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('游戏选择页面已加载');
+        });
+    </script>
+</body>
+</html>

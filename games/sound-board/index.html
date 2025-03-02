@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>声音互动板 - 自闭症儿童互动游戏</title>
+    <style>
+        body {
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #4a86e8;
+            color: white;
+            width: 100%;
+            padding: 15px 0;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        h1 {
+            margin: 0;
+            font-size: 2em;
+        }
+        .back-button {
+            position: absolute;
+            left: 20px;
+            top: 15px;
+            background-color: rgba(255,255,255,0.3);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+        .back-button:hover {
+            background-color: rgba(255,255,255,0.5);
+        }
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 20px;
+            text-align: center;
+        }
+        .game-info {
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        .sound-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 0 auto;
+        }
+        .sound-card {
+            background-color: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        .sound-card:hover {
+            transform: scale(1.05);
+        }
+        .sound-card:active {
+            transform: scale(0.95);
+        }
+        .sound-image {
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5em;
+            background-color: #e6f2ff;
+        }
+        .sound-label {
+            padding: 15px;
+            font-size: 1.2em;
+            color: #333;
+        }
+        .category-selector {
+            margin-bottom: 30px;
+        }
+        .category-button {
+            background-color: #4a86e8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin: 0 10px 10px 0;
+            transition: background-color 0.3s;
+        }
+        .category-button:hover {
+            background-color: #3a76d8;
+        }
+        .category-button.active {
+            background-color: #2a66c8;
+            box-shadow: 0 0 0 3px rgba(74, 134, 232, 0.3);
+        }
+        .visual-feedback {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .feedback-emoji {
+            font-size: 15em;
+            animation: pulse 1s;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 0; }
+        }
+        @media (max-width: 768px) {
+            .sound-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 480px) {
+            .sound-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <button class="back-button" onclick="location.href='../../index.html'">← 返回</button>
+        <h1>声音互动板</h1>
+    </header>
+
+    <div class="container">
+        <div class="game-info">
+            <p>点击图片听声音！这个互动板可以帮助建立声音与图像的联系，促进听觉刺激和选择表达。</p>
+        </div>
+
+        <div class="category-selector">
+            <button class="category-button active" data-category="animals">动物</button>
+            <button class="category-button" data-category="nature">自然</button>
+            <button class="category-button" data-category="instruments">乐器</button>
+            <button class="category-button" data-category="everyday">日常</button>
+        </div>
+
+        <div class="sound-grid" id="soundGrid"></div>
+    </div>
+
+    <div class="visual-feedback" id="visualFeedback">
+        <div class="feedback-emoji" id="feedbackEmoji"></div>
+    </div>
+
+    <script>
+        // 声音数据
+        const soundCategories = {
+            animals: [
+                { emoji: '🐶', label: '狗', sound: 'https://actions.google.com/sounds/v1/animals/dog_barking.ogg', feedbackEmoji: '🐶' },
+                { emoji: '🐱', label: '猫', sound: 'https://actions.google.com/sounds/v1/animals/cat_meow.ogg', feedbackEmoji: '🐱' },
+                { emoji: '🐮', label: '牛', sound: 'https://actions.google.com/sounds/v1/animals/cow_moo.ogg', feedbackEmoji: '🐮' },
+                { emoji: '🐔', label: '鸡', sound: 'https://actions.google.com/sounds/v1/animals/chicken_cluck.ogg', feedbackEmoji: '🐔' },
+                { emoji: '🐦', label: '鸟', sound: 'https://actions.google.com/sounds/v1/animals/bird_chirping_close.ogg', feedbackEmoji: '🐦' },
+                { emoji: '🐸', label: '青蛙', sound: 'https://actions.google.com/sounds/v1/animals/frog_croaking.ogg', feedbackEmoji: '🐸' }
+            ],
+            nature: [
+                { emoji: '🌧️', label: '雨', sound: 'https://actions.google.com/sounds/v1/weather/rain_on_roof.ogg', feedbackEmoji: '☔' },
+                { emoji: '⚡', label: '雷', sound: 'https://actions.google.com/sounds/v1/weather/thunder_crack.ogg', feedbackEmoji: '⚡' },
+                { emoji: '🌊', label: '海浪', sound: 'https://actions.google.com/sounds/v1/water/waves_crashing_on_rock_beach.ogg', feedbackEmoji: '🏄' },
+                { emoji: '🔥', label: '火', sound: 'https://actions.google.com/sounds/v1/household/fireplace_burning.ogg', feedbackEmoji: '🔥' },
+                { emoji: '🌬️', label: '风', sound: 'https://actions.google.com/sounds/v1/weather/wind_howling.ogg', feedbackEmoji: '🍃' },
+                { emoji: '🌳', label: '森林', sound: 'https://actions.google.com/sounds/v1/ambiences/forest_ambience.ogg', feedbackEmoji: '🌲' }
+            ],
+            instruments: [
+                { emoji: '🥁', label: '鼓', sound: 'https://actions.google.com/sounds/v1/musical_instruments/drum_roll.ogg', feedbackEmoji: '🥁' },
+                { emoji: '🎹', label: '钢琴', sound: 'https://actions.google.com/sounds/v1/musical_instruments/piano_note.ogg', feedbackEmoji: '🎹' },
+                { emoji: '🎸', label: '吉他', sound: 'https://actions.google.com/sounds/v1/musical_instruments/guitar_strum.ogg', feedbackEmoji: '🎸' },
+                { emoji: '🎺', label: '小号', sound: 'https://actions.google.com/sounds/v1/musical_instruments/trumpet_fanfare.ogg', feedbackEmoji: '🎺' },
+                { emoji: '🪕', label: '班卓琴', sound: 'https://actions.google.com/sounds/v1/musical_instruments/banjo_chord.ogg', feedbackEmoji: '🪕' },
+                { emoji: '🎻', label: '小提琴', sound: 'https://actions.google.com/sounds/v1/musical_instruments/violin_string_pluck.ogg', feedbackEmoji: '🎻' }
+            ],
+            everyday: [
+                { emoji: '🚗', label: '汽车', sound: 'https://actions.google.com/sounds/v1/transportation/car_drive_by.ogg', feedbackEmoji: '🚗' },
+                { emoji: '🚂', label: '火车', sound: 'https://actions.google.com/sounds/v1/transportation/train_horn_whistle.ogg', feedbackEmoji: '🚂' },
+                { emoji: '📱', label: '电话', sound: 'https://actions.google.com/sounds/v1/alarms/phone_ringing.ogg', feedbackEmoji: '📱' },
+                { emoji: '🚪', label: '门', sound: 'https://actions.google.com/sounds/v1/doors/wood_door_open.ogg', feedbackEmoji: '🚪' },
+                { emoji: '⏰', label: '闹钟', sound: 'https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg', feedbackEmoji: '⏰' },
+                { emoji: '👏', label: '鼓掌', sound: 'https://actions.google.com/sounds/v1/human/crowd_applause.ogg', feedbackEmoji: '👏' }
+            ]
+        };
+
+        let currentCategory = 'animals';
+        let audioElement = new Audio();
+
+        // 初始化声音板
+        function initSoundBoard(category) {
+            const soundGrid = document.getElementById('soundGrid');
+            soundGrid.innerHTML = '';
+            
+            soundCategories[category].forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'sound-card';
+                card.dataset.sound = item.sound;
+                card.dataset.feedback = item.feedbackEmoji;
+                
+                const imageDiv = document.createElement('div');
+                imageDiv.className = 'sound-image';
+                imageDiv.textContent = item.emoji;
+                
+                const labelDiv = document.createElement('div');
+                labelDiv.className = 'sound-label';
+                labelDiv.textContent = item.label;
+                
+                card.appendChild(imageDiv);
+                card.appendChild(labelDiv);
+                
+                card.addEventListener('click', playSound);
+                soundGrid.appendChild(card);
+            });
+        }
+
+        // 播放声音
+        function playSound() {
+            // 停止当前正在播放的声音
+            audioElement.pause();
+            audioElement.currentTime = 0;
+            
+            // 播放新声音
+            audioElement = new Audio(this.dataset.sound);
+            audioElement.play();
+            
+            // 视觉反馈
+            const visualFeedback = document.getElementById('visualFeedback');
+            const feedbackEmoji = document.getElementById('feedbackEmoji');
+            
+            feedbackEmoji.textContent = this.dataset.feedback;
+            visualFeedback.style.opacity = '1';
+            
+            // 卡片动画
+            this.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 200);
+            
+            // 重置视觉反馈
+            setTimeout(() => {
+                visualFeedback.style.opacity = '0';
+            }, 1000);
+        }
+
+        // 切换类别
+        function changeCategory() {
+            // 更新活跃按钮
+            document.querySelectorAll('.category-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            this.classList.add('active');
+            
+            // 更新类别和声音板
+            currentCategory = this.dataset.category;
+            initSoundBoard(currentCategory);
+        }
+
+        // 初始化事件监听
+        document.addEventListener('DOMContentLoaded', function() {
+            initSoundBoard(currentCategory);
+            
+            document.querySelectorAll('.category-button').forEach(button => {
+                button.addEventListener('click', changeCategory);
+            });
+        });
+    </script>
+</body>
+</html>

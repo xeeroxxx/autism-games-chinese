@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日常活动排序 - 自闭症儿童互动游戏</title>
+    <style>
+        body {
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #4a86e8;
+            color: white;
+            width: 100%;
+            padding: 15px 0;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        h1 {
+            margin: 0;
+            font-size: 2em;
+        }
+        .back-button {
+            position: absolute;
+            left: 20px;
+            top: 15px;
+            background-color: rgba(255,255,255,0.3);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+        .back-button:hover {
+            background-color: rgba(255,255,255,0.5);
+        }
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 20px;
+            text-align: center;
+        }
+        .game-info {
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        .sequence-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .activity-selection {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .sequence-board {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 600px;
+        }
+        .sequence-step {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .step-number {
+            background-color: #4a86e8;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        .step-content {
+            flex-grow: 1;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 10px;
+        }
+        .activity-card {
+            width: 120px;
+            height: 120px;
+            background-color: #e6f2ff;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            user-select: none;
+        }
+        .activity-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        .activity-card.selected {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .activity-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        .activity-label {
+            font-size: 0.9em;
+            text-align: center;
+            color: #333;
+        }
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        button {
+            background-color: #4a86e8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #3a76d8;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 100;
+        }
+        .celebration-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            animation: pop 0.5s;
+        }
+        @keyframes pop {
+            0% { transform: scale(0.5); }
+            80% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .celebration h2 {
+            color: #4a86e8;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        .emoji-rain {
+            font-size: 3em;
+            margin: 20px 0;
+            letter-spacing: 10px;
+        }
+        @media (max-width: 768px) {
+            .activity-card {
+                width: 100px;
+                height: 100px;
+            }
+            .activity-icon {
+                font-size: 2.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <button class="back-button" onclick="location.href='../../index.html'">← 返回</button>
+        <h1>日常活动排序</h1>
+    </header>
+
+    <div class="container">
+        <div class="game-info">
+            <p>将日常活动按照正确的顺序排列！拖动下方的活动卡片到上方的序列框中。</p>
+        </div>
+
+        <div class="sequence-container">
+            <div class="sequence-board" id="sequenceBoard">
+                <!-- 序列步骤将通过JavaScript动态生成 -->
+            </div>
+
+            <div class="activity-selection" id="activitySelection">
+                <!-- 活动卡片将通过JavaScript动态生成 -->
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="checkButton" disabled>检查顺序</button>
+            <button id="resetButton">重置</button>
+            <button id="newActivityButton">新活动</button>
+        </div>
+    </div>
+
+    <div class="celebration" id="celebration">
+        <div class="celebration-content">
+            <h2>太棒了！</h2>
+            <p>你成功地将所有活动按正确顺序排列！</p>
+            <div class="emoji-rain">🎉✨🌟👏</div>
+            <button id="nextActivityButton">下一个活动</button>
+        </div>
+    </div>
+
+    <script>
+        // 活动数据
+        const activities = [
+            {
+                name: "早晨起床",
+                steps: [
+                    { icon: "🛌", label: "起床" },
+                    { icon: "🚿", label: "洗澡" },
+                    { icon: "🦷", label: "刷牙" },
+                    { icon: "👕", label: "穿衣服" },
+                    { icon: "🍳", label: "吃早餐" }
+                ]
+            },
+            {
+                name: "洗手步骤",
+                steps: [
+                    { icon: "💧", label: "打开水龙头" },
+                    { icon: "🧼", label: "用肥皂" },
+                    { icon: "👏", label: "搓手" },
+                    { icon: "💦", label: "冲洗" },
+                    { icon: "🧻", label: "擦干" }
+                ]
+            },
+            {
+                name: "准备睡觉",
+                steps: [
+                    { icon: "🧸", label: "收拾玩具" },
+                    { icon: "🦷", label: "刷牙" },
+                    { icon: "👕", label: "换睡衣" },
+                    { icon: "📚", label: "读故事" },
+                    { icon: "🛌", label: "上床睡觉" }
+                ]
+            }
+        ];
+
+        // 当前活动索引
+        let currentActivityIndex = 0;
+        let currentActivity = activities[currentActivityIndex];
+        let correctOrder = [];
+        let selectedCards = [];
+
+        // DOM元素
+        const sequenceBoard = document.getElementById('sequenceBoard');
+        const activitySelection = document.getElementById('activitySelection');
+        const checkButton = document.getElementById('checkButton');
+        const resetButton = document.getElementById('resetButton');
+        const newActivityButton = document.getElementById('newActivityButton');
+        const celebration = document.getElementById('celebration');
+        const nextActivityButton = document.getElementById('nextActivityButton');
+
+        // 初始化游戏
+        function initGame() {
+            // 清空序列板和活动选择区
+            sequenceBoard.innerHTML = '';
+            activitySelection.innerHTML = '';
+            selectedCards = [];
+            
+            // 获取当前活动
+            currentActivity = activities[currentActivityIndex];
+            
+            // 创建正确顺序的副本
+            correctOrder = [...currentActivity.steps];
+            
+            // 创建打乱顺序的副本用于显示
+            const shuffledSteps = [...currentActivity.steps];
+            shuffleArray(shuffledSteps);
+            
+            // 创建序列步骤
+            for (let i = 0; i < correctOrder.length; i++) {
+                const stepElement = document.createElement('div');
+                stepElement.className = 'sequence-step';
+                stepElement.innerHTML = `
+                    <div class="step-number">${i + 1}</div>
+                    <div class="step-content" data-step="${i}" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+                `;
+                sequenceBoard.appendChild(stepElement);
+            }
+            
+            // 创建活动卡片
+            shuffledSteps.forEach((step, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'activity-card';
+                cardElement.draggable = true;
+                cardElement.setAttribute('data-index', index);
+                cardElement.innerHTML = `
+                    <div class="activity-icon">${step.icon}</div>
+                    <div class="activity-label">${step.label}</div>
+                `;
+                cardElement.addEventListener('dragstart', drag);
+                activitySelection.appendChild(cardElement);
+            });
+            
+            // 禁用检查按钮
+            checkButton.disabled = true;
+        }
+
+        // 打乱数组顺序
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // 拖拽函数
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+
+        function drag(event) {
+            event.dataTransfer.setData("text", event.target.getAttribute('data-index'));
+        }
+
+        function drop(event) {
+            event.preventDefault();
+            const data = event.dataTransfer.getData("text");
+            const draggedElement = document.querySelector(`.activity-card[data-index="${data}"]`);
+            
+            // 如果卡片已被选择，则不允许再次放置
+            if (draggedElement.classList.contains('selected')) {
+                return;
+            }
+            
+            // 如果目标位置已有卡片，则不允许放置
+            const dropTarget = event.target.closest('.step-content');
+            if (dropTarget.children.length > 0) {
+                return;
+            }
+            
+            // 克隆卡片并放置到目标位置
+            const clone = draggedElement.cloneNode(true);
+            clone.classList.add('placed');
+            clone.draggable = false;
+            
+            // 添加移除功能
+            clone.addEventListener('click', function() {
+                // 移除卡片
+                this.parentNode.removeChild(this);
+                // 恢复原卡片可用状态
+                draggedElement.classList.remove('selected');
+                // 更新选中卡片数组
+                const stepIndex = parseInt(dropTarget.getAttribute('data-step'));
+                selectedCards = selectedCards.filter(card => card.step !== stepIndex);
+                // 更新检查按钮状态
+                checkButton.disabled = selectedCards.length !== correctOrder.length;
+            });
+            
+            dropTarget.appendChild(clone);
+            
+            // 标记原卡片为已选择
+            draggedElement.classList.add('selected');
+            
+            // 更新选中卡片数组
+            const stepIndex = parseInt(dropTarget.getAttribute('data-step'));
+            selectedCards.push({
+                step: stepIndex,
+                icon: currentActivity.steps[parseInt(data)].icon,
+                label: currentActivity.steps[parseInt(data)].label
+            });
+            
+            // 如果所有步骤都已放置卡片，启用检查按钮
+            checkButton.disabled = selectedCards.length !== correctOrder.length;
+        }
+
+        // 检查顺序是否正确
+        function checkSequence() {
+            let isCorrect = true;
+            
+            // 获取所有已放置的卡片
+            const placedCards = document.querySelectorAll('.step-content .activity-card');
+            
+            // 检查每个位置的卡片是否正确
+            placedCards.forEach((card, index) => {
+                const cardIcon = card.querySelector('.activity-icon').textContent;
+                const correctIcon = correctOrder[index].icon;
+                
+                if (cardIcon !== correctIcon) {
+                    isCorrect = false;
+                    card.style.animation = 'shake 0.5s';
+                    setTimeout(() => {
+                        card.style.animation = '';
+                    }, 500);
+                } else {
+                    card.style.animation = 'pulse 0.5s';
+                    setTimeout(() => {
+                        card.style.animation = '';
+                    }, 500);
+                }
+            });
+            
+            // 如果全部正确，显示庆祝界面
+            if (isCorrect) {
+                celebration.style.display = 'flex';
+            }
+        }
+
+        // 重置游戏
+        function resetGame() {
+            // 移除所有已放置的卡片
+            const placedCards = document.querySelectorAll('.step-content .activity-card');
+            placedCards.forEach(card => card.parentNode.removeChild(card));
+            
+            // 恢复所有原卡片可用状态
+            const originalCards = document.querySelectorAll('.activity-selection .activity-card');
+            originalCards.forEach(card => card.classList.remove('selected'));
+            
+            // 重置选中卡片数组
+            selectedCards = [];
+            
+            // 禁用检查按钮
+            checkButton.disabled = true;
+        }
+
+        // 加载新活动
+        function loadNewActivity() {
+            // 更新活动索引
+            currentActivityIndex = (currentActivityIndex + 1) % activities.length;
+            
+            // 初始化游戏
+            initGame();
+            
+            // 隐藏庆祝界面
+            celebration.style.display = 'none';
+        }
+
+        // 添加事件监听器
+        checkButton.addEventListener('click', checkSequence);
+        resetButton.addEventListener('click', resetGame);
+        newActivityButton.addEventListener('click', loadNewActivity);
+        nextActivityButton.addEventListener('click', loadNewActivity);
+
+        // 添加CSS动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-5px); }
+                75% { transform: translateX(5px); }
+            }
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.1); }
+                100% { transform: scale(1); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 初始化游戏
+        window.onload = function() {
+            initGame();
+        };
+    </script>
+</body>
+</html>

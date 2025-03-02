@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>平静空间 - 自闭症儿童互动游戏</title>
+    <style>
+        body {
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        header {
+            background-color: #4a86e8;
+            color: white;
+            width: 100%;
+            padding: 15px 0;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 10;
+        }
+        h1 {
+            margin: 0;
+            font-size: 2em;
+        }
+        .back-button {
+            position: absolute;
+            left: 20px;
+            top: 15px;
+            background-color: rgba(255,255,255,0.3);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+        .back-button:hover {
+            background-color: rgba(255,255,255,0.5);
+        }
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .game-info {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .calm-space {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 500px;
+            margin: 0 auto;
+            background-color: #1a237e;
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+            overflow: hidden;
+            flex-grow: 1;
+        }
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(255,255,255,0.4));
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+            pointer-events: none;
+            animation: float 8s ease-in-out infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(0) translateX(0); }
+            25% { transform: translateY(-20px) translateX(10px); }
+            50% { transform: translateY(0) translateX(20px); }
+            75% { transform: translateY(20px) translateX(10px); }
+            100% { transform: translateY(0) translateX(0); }
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            width: 100%;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            background-color: white;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .control-title {
+            font-weight: bold;
+            color: #4a86e8;
+            margin-bottom: 5px;
+        }
+        .color-options {
+            display: flex;
+            gap: 10px;
+        }
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+        .color-option.active {
+            transform: scale(1.2);
+            box-shadow: 0 0 0 3px rgba(74, 134, 232, 0.5);
+        }
+        button {
+            background-color: #4a86e8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #3a76d8;
+        }
+        .sound-options {
+            display: flex;
+            gap: 10px;
+        }
+        .sound-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+        .sound-icon {
+            font-size: 1.5em;
+        }
+        .sound-label {
+            font-size: 0.8em;
+        }
+        .sound-option.active .sound-icon {
+            color: #4a86e8;
+        }
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            animation: particleFloat 3s ease-out forwards;
+        }
+        @keyframes particleFloat {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100px) scale(0); opacity: 0; }
+        }
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            .calm-space {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <button class="back-button" onclick="location.href='../../index.html'">← 返回</button>
+        <h1>平静空间</h1>
+    </header>
+
+    <div class="container">
+        <div class="game-info">
+            <p>欢迎来到平静空间！在这里，你可以创造一个舒适的视觉和听觉环境，帮助缓解焦虑和压力。</p>
+        </div>
+
+        <div class="calm-space" id="calmSpace">
+            <!-- 气泡和粒子将通过JavaScript动态生成 -->
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <div class="control-title">背景颜色</div>
+                <div class="color-options" id="backgroundColors">
+                    <div class="color-option active" style="background-color: #1a237e;" data-color="#1a237e"></div>
+                    <div class="color-option" style="background-color: #004d40;" data-color="#004d40"></div>
+                    <div class="color-option" style="background-color: #311b92;" data-color="#311b92"></div>
+                    <div class="color-option" style="background-color: #01579b;" data-color="#01579b"></div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div class="control-title">气泡颜色</div>
+                <div class="color-options" id="bubbleColors">
+                    <div class="color-option active" style="background-color: #ffffff;" data-color="rgba(255,255,255,0.8)"></div>
+                    <div class="color-option" style="background-color: #64ffda;" data-color="rgba(100,255,218,0.8)"></div>
+                    <div class="color-option" style="background-color: #b388ff;" data-color="rgba(179,136,255,0.8)"></div>
+                    <div class="color-option" style="background-color: #80d8ff;" data-color="rgba(128,216,255,0.8)"></div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div class="control-title">背景音乐</div>
+                <div class="sound-options" id="soundOptions">
+                    <div class="sound-option active" data-sound="ocean">
+                        <div class="sound-icon">🌊</div>
+                        <div class="sound-label">海浪</div>
+                    </div>
+                    <div class="sound-option" data-sound="rain">
+                        <div class="sound-icon">🌧️</div>
+                        <div class="sound-label">雨声</div>
+                    </div>
+                    <div class="sound-option" data-sound="forest">
+                        <div class="sound-icon">🌳</div>
+                        <div class="sound-label">森林</div>
+                    </div>
+                    <div class="sound-option" data-sound="none">
+                        <div class="sound-icon">🔇</div>
+                        <div class="sound-label">静音</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <button id="addBubbles">添加更多气泡</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化变量
+        let backgroundColor = '#1a237e';
+        let bubbleColor = 'rgba(255,255,255,0.8)';
+        let currentSound = 'ocean';
+        let audioElement = null;
+        let bubbleInterval;
+
+        // 获取元素
+        const calmSpace = document.getElementById('calmSpace');
+        const backgroundColorOptions = document.querySelectorAll('#backgroundColors .color-option');
+        const bubbleColorOptions = document.querySelectorAll('#bubbleColors .color-option');
+        const soundOptions = document.querySelectorAll('#soundOptions .sound-option');
+        const addBubblesButton = document.getElementById('addBubbles');
+
+        // 初始化平静空间
+        function initCalmSpace() {
+            // 设置初始背景色
+            calmSpace.style.backgroundColor = backgroundColor;
+            
+            // 创建初始气泡
+            createInitialBubbles();
+            
+            // 设置气泡自动生成
+            bubbleInterval = setInterval(createBubble, 3000);
+            
+            // 播放初始音乐
+            playSound(currentSound);
+            
+            // 添加点击交互
+            calmSpace.addEventListener('click', handleSpaceClick);
+        }
+
+        // 创建初始气泡
+        function createInitialBubbles() {
+            for (let i = 0; i < 15; i++) {
+                createBubble();
+            }
+        }
+
+        // 创建单个气泡
+        function createBubble() {
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            
+            // 随机大小和位置
+            const size = Math.random() * 80 + 20;
+            const left = Math.random() * 100;
+            const top = Math.random() * 100;
+            const delay = Math.random() * 5;
+            const duration = Math.random() * 4 + 6;
+            
+            // 设置样式
+            bubble.style.width = `${size}px`;
+            bubble.style.height = `${size}px`;
+            bubble.style.left = `${left}%`;
+            bubble.style.top = `${top}%`;
+            bubble.style.animationDelay = `${delay}s`;
+            bubble.style.animationDuration = `${duration}s`;
+            bubble.style.background = `radial-gradient(circle at 30% 30%, ${bubbleColor}, rgba(255,255,255,0.2))`;
+            
+            // 添加到容器
+            calmSpace.appendChild(bubble);
+            
+            // 设置自动移除
+            setTimeout(() => {
+                if (bubble.parentNode === calmSpace) {
+                    calmSpace.removeChild(bubble);
+                }
+            }, duration * 1000 + delay * 1000);
+        }
+
+        // 处理空间点击
+        function handleSpaceClick(e) {
+            // 获取点击位置
+            const rect = calmSpace.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // 创建粒子效果
+            createParticles(x, y);
+        }
+
+        // 创建粒子效果
+        function createParticles(x, y) {
+            for (let i = 0; i < 10; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // 随机大小
+                const size = Math.random() * 15 + 5;
+                
+                // 设置样式
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${x}px`;
+                particle.style.top = `${y}px`;
+                particle.style.background = bubbleColor;
+                
+                // 随机动画
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.random() * 50 + 20;
+                const duration = Math.random() * 1 + 2;
+                
+                particle.style.animation = `particleFloat ${duration}s ease-out forwards`;
+                
+                // 添加到容器
+                calmSpace.appendChild(particle);
+                
+                // 设置自动移除
+                setTimeout(() => {
+                    if (particle.parentNode === calmSpace) {
+                        calmSpace.removeChild(particle);
+                    }
+                }, duration * 1000);
+            }
+        }
+
+        // 播放声音
+        function playSound(soundType) {
+            // 停止之前的音频
+            if (audioElement) {
+                audioElement.pause();
+                audioElement.currentTime = 0;
+            }
+            
+            // 如果选择静音，则不播放
+            if (soundType === 'none') {
+                currentSound = 'none';
+                return;
+            }
+            
+            // 创建新的音频元素
+            audioElement = new Audio();
+            audioElement.loop = true;
+            
+            // 设置音频源
+            switch(soundType) {
+                case 'ocean':
+                    audioElement.src = 'https://assets.mixkit.co/sfx/preview/mixkit-sea-waves-loop-1196.mp3';
+                    break;
+                case 'rain':
+                    audioElement.src = 'https://assets.mixkit.co/sfx/preview/mixkit-light-rain-loop-2393.mp3';
+                    break;
+                case 'forest':
+                    audioElement.src = 'https://assets.mixkit.co/sfx/preview/mixkit-forest-birds-ambience-1210.mp3';
+                    break;
+                default:
+                    return;
+            }
+            
+            // 播放音频
+            audioElement.volume = 0.5;
+            audioElement.play().catch(error => {
+                console.log('音频播放失败:', error);
+            });
+            
+            // 更新当前声音
+            currentSound = soundType;
+        }
+
+        // 设置背景颜色
+        backgroundColorOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                // 更新活跃状态
+                backgroundColorOptions.forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+                
+                // 设置背景颜色
+                backgroundColor = option.dataset.color;
+                calmSpace.style.backgroundColor = backgroundColor;
+            });
+        });
+
+        // 设置气泡颜色
+        bubbleColorOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                // 更新活跃状态
+                bubbleColorOptions.forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+                
+                // 设置气泡颜色
+                bubbleColor = option.dataset.color;
+            });
+        });
+
+        // 设置声音选项
+        soundOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                // 更新活跃状态
+                soundOptions.forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+                
+                // 播放选择的声音
+                playSound(option.dataset.sound);
+            });
+        });
+
+        // 添加更多气泡按钮
+        addBubblesButton.addEventListener('click', () => {
+            for (let i = 0; i < 10; i++) {
+                createBubble();
+            }
+        });
+
+        // 初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            initCalmSpace();
+        });
+
+        // 页面离开时清理
+        window.addEventListener('beforeunload', () => {
+            if (audioElement) {
+                audioElement.pause();
+            }
+            clearInterval(bubbleInterval);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>表情配对游戏 - 自闭症儿童互动游戏</title>
+    <style>
+        body {
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #4a86e8;
+            color: white;
+            width: 100%;
+            padding: 15px 0;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            margin: 0;
+            font-size: 2em;
+        }
+        .back-button {
+            position: absolute;
+            left: 20px;
+            top: 15px;
+            background-color: rgba(255,255,255,0.3);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+        .back-button:hover {
+            background-color: rgba(255,255,255,0.5);
+        }
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 20px;
+            text-align: center;
+        }
+        .game-info {
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 0 auto;
+            max-width: 600px;
+        }
+        .card {
+            height: 120px;
+            background-color: #4a86e8;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+        }
+        .card-front {
+            background-color: #4a86e8;
+        }
+        .card-back {
+            background-color: white;
+            transform: rotateY(180deg);
+        }
+        .controls {
+            margin-top: 30px;
+        }
+        button {
+            background-color: #4a86e8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #3a76d8;
+        }
+        .score {
+            font-size: 1.2em;
+            margin-top: 20px;
+            color: #4a86e8;
+        }
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 100;
+        }
+        .celebration-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            animation: pop 0.5s;
+        }
+        @keyframes pop {
+            0% { transform: scale(0.5); }
+            80% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .celebration h2 {
+            color: #4a86e8;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        .emoji-rain {
+            font-size: 3em;
+            margin: 20px 0;
+            letter-spacing: 10px;
+        }
+        @media (max-width: 600px) {
+            .game-board {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .card {
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <button class="back-button" onclick="location.href='../../index.html'">← 返回</button>
+        <h1>表情配对游戏</h1>
+    </header>
+
+    <div class="container">
+        <div class="game-info">
+            <p>找到所有匹配的表情对！点击卡片翻转它们，记住它们的位置，然后找到相同的表情。</p>
+        </div>
+
+        <div class="game-board" id="gameBoard"></div>
+
+        <div class="controls">
+            <button id="restartButton">重新开始</button>
+            <button id="easyModeButton">简单模式</button>
+        </div>
+
+        <div class="score">
+            <p>已找到的配对: <span id="matchCount">0</span> / <span id="totalPairs">6</span></p>
+        </div>
+    </div>
+
+    <div class="celebration" id="celebration">
+        <div class="celebration-content">
+            <h2>太棒了！</h2>
+            <div class="emoji-rain">🎉✨🎊🌟</div>
+            <p>你找到了所有的配对！</p>
+            <button onclick="restartGame()">再玩一次</button>
+            <button onclick="location.href='../../index.html'">返回主页</button>
+        </div>
+    </div>
+
+    <script>
+        // 表情数组
+        const emojis = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘'];
+        let cards = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let totalPairs = 6; // 默认6对
+        let isProcessing = false;
+        let easyMode = false;
+
+        // 初始化游戏
+        function initGame() {
+            const gameBoard = document.getElementById('gameBoard');
+            gameBoard.innerHTML = '';
+            cards = [];
+            flippedCards = [];
+            matchedPairs = 0;
+            isProcessing = false;
+            document.getElementById('matchCount').textContent = '0';
+            document.getElementById('totalPairs').textContent = totalPairs;
+
+            // 随机选择表情
+            const selectedEmojis = [];
+            while (selectedEmojis.length < totalPairs) {
+                const randomIndex = Math.floor(Math.random() * emojis.length);
+                const emoji = emojis[randomIndex];
+                if (!selectedEmojis.includes(emoji)) {
+                    selectedEmojis.push(emoji);
+                }
+            }
+
+            // 创建配对卡片
+            const cardEmojis = [...selectedEmojis, ...selectedEmojis];
+            shuffleArray(cardEmojis);
+
+            // 创建卡片元素
+            cardEmojis.forEach((emoji, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.dataset.index = index;
+                card.dataset.emoji = emoji;
+
+                const cardFront = document.createElement('div');
+                cardFront.className = 'card-front';
+                cardFront.textContent = '?';
+
+                const cardBack = document.createElement('div');
+                cardBack.className = 'card-back';
+                cardBack.textContent = emoji;
+
+                card.appendChild(cardFront);
+                card.appendChild(cardBack);
+
+                card.addEventListener('click', flipCard);
+                gameBoard.appendChild(card);
+                cards.push(card);
+            });
+        }
+
+        // 洗牌函数
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // 翻转卡片
+        function flipCard() {
+            if (isProcessing || flippedCards.length >= 2 || this.classList.contains('flipped') || this.classList.contains('matched')) {
+                return;
+            }
+
+            this.classList.add('flipped');
+            flippedCards.push(this);
+
+            // 如果翻转了两张卡片，检查是否匹配
+            if (flippedCards.length === 2) {
+                isProcessing = true;
+                const card1 = flippedCards[0];
+                const card2 = flippedCards[1];
+
+                if (card1.dataset.emoji === card2.dataset.emoji) {
+                    // 匹配成功
+                    setTimeout(() => {
+                        card1.classList.add('matched');
+                        card2.classList.add('matched');
+                        card1.style.backgroundColor = '#8bc34a';
+                        card2.style.backgroundColor = '#8bc34a';
+                        flippedCards = [];
+                        isProcessing = false;
+                        matchedPairs++;
+                        document.getElementById('matchCount').textContent = matchedPairs;
+
+                        // 检查游戏是否完成
+                        if (matchedPairs === totalPairs) {
+                            setTimeout(() => {
+                                document.getElementById('celebration').style.display = 'flex';
+                            }, 500);
+                        }
+                    }, 500);
+                } else {
+                    // 不匹配
+                    setTimeout(() => {
+                        card1.classList.remove('flipped');
+                        card2.classList.remove('flipped');
+                        flippedCards = [];
+                        isProcessing = false;
+                    }, easyMode ? 1500 : 1000); // 简单模式下给更多时间记忆
+                }
+            }
+        }
+
+        // 重新开始游戏
+        function restartGame() {
+            document.getElementById('celebration').style.display = 'none';
+            initGame();
+        }
+
+        // 切换简单模式
+        function toggleEasyMode() {
+            easyMode = !easyMode;
+            document.getElementById('easyModeButton').textContent = easyMode ? '标准模式' : '简单模式';
+            if (easyMode) {
+                totalPairs = 4; // 简单模式减少配对数量
+            } else {
+                totalPairs = 6; // 标准模式
+            }
+            restartGame();
+        }
+
+        // 初始化事件监听
+        document.addEventListener('DOMContentLoaded', function() {
+            initGame();
+            document.getElementById('restartButton').addEventListener('click', restartGame);
+            document.getElementById('easyModeButton').addEventListener('click', toggleEasyMode);
+        });
+    </script>
+</body>
+</html>

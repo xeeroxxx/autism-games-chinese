@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创意绘画画布 - 自闭症儿童互动游戏</title>
+    <style>
+        body {
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        header {
+            background-color: #4a86e8;
+            color: white;
+            width: 100%;
+            padding: 15px 0;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 10;
+        }
+        h1 {
+            margin: 0;
+            font-size: 2em;
+        }
+        .back-button {
+            position: absolute;
+            left: 20px;
+            top: 15px;
+            background-color: rgba(255,255,255,0.3);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+        .back-button:hover {
+            background-color: rgba(255,255,255,0.5);
+        }
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .game-info {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #drawingCanvas {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            cursor: crosshair;
+            touch-action: none;
+            margin-bottom: 20px;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        .color-picker {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+        .color-option.active {
+            transform: scale(1.2);
+            box-shadow: 0 0 0 3px rgba(74, 134, 232, 0.5);
+        }
+        .brush-size {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        button {
+            background-color: #4a86e8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #3a76d8;
+        }
+        .special-effects {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .effect-button {
+            background-color: #9c27b0;
+            padding: 8px 15px;
+            font-size: 0.9em;
+        }
+        .effect-button:hover {
+            background-color: #7b1fa2;
+        }
+        .visual-feedback {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 3s ease-out forwards;
+        }
+        @keyframes float {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100px) scale(0); opacity: 0; }
+        }
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <button class="back-button" onclick="location.href='../../index.html'">← 返回</button>
+        <h1>创意绘画画布</h1>
+    </header>
+
+    <div class="container">
+        <div class="game-info">
+            <p>在画布上自由创作！选择不同的颜色和画笔大小，创造出美丽的艺术作品。</p>
+        </div>
+
+        <div class="canvas-container">
+            <canvas id="drawingCanvas"></canvas>
+
+            <div class="controls">
+                <div>
+                    <div class="color-picker" id="colorPicker">
+                        <div class="color-option active" style="background-color: #ff0000;" data-color="#ff0000"></div>
+                        <div class="color-option" style="background-color: #ff9900;" data-color="#ff9900"></div>
+                        <div class="color-option" style="background-color: #ffff00;" data-color="#ffff00"></div>
+                        <div class="color-option" style="background-color: #33cc33;" data-color="#33cc33"></div>
+                        <div class="color-option" style="background-color: #3399ff;" data-color="#3399ff"></div>
+                        <div class="color-option" style="background-color: #9933ff;" data-color="#9933ff"></div>
+                        <div class="color-option" style="background-color: #ff66ff;" data-color="#ff66ff"></div>
+                        <div class="color-option" style="background-color: #000000;" data-color="#000000"></div>
+                    </div>
+
+                    <div class="brush-size">
+                        <label for="brushSize">画笔大小:</label>
+                        <input type="range" id="brushSize" min="1" max="30" value="5">
+                    </div>
+                </div>
+
+                <div>
+                    <button id="clearButton">清除画布</button>
+                    <button id="saveButton">保存作品</button>
+                </div>
+
+                <div class="special-effects">
+                    <button class="effect-button" id="rainbowMode">彩虹模式</button>
+                    <button class="effect-button" id="sparkleEffect">闪光效果</button>
+                    <button class="effect-button" id="soundEffect">声音反馈</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="visual-feedback" id="visualFeedback"></div>
+
+    <script>
+        // 初始化变量
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+        let currentColor = '#ff0000';
+        let brushSize = 5;
+        let rainbowMode = false;
+        let sparkleEffect = false;
+        let soundEffect = false;
+        let hue = 0;
+        let audioContext;
+        let oscillator;
+
+        // 获取元素
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        const colorOptions = document.querySelectorAll('.color-option');
+        const brushSizeInput = document.getElementById('brushSize');
+        const clearButton = document.getElementById('clearButton');
+        const saveButton = document.getElementById('saveButton');
+        const rainbowModeButton = document.getElementById('rainbowMode');
+        const sparkleEffectButton = document.getElementById('sparkleEffect');
+        const soundEffectButton = document.getElementById('soundEffect');
+        const visualFeedback = document.getElementById('visualFeedback');
+
+        // 设置画布大小
+        function resizeCanvas() {
+            const container = document.querySelector('.canvas-container');
+            const containerWidth = container.clientWidth;
+            const containerHeight = Math.min(window.innerHeight * 0.6, 600);
+            
+            canvas.width = Math.min(containerWidth, 800);
+            canvas.height = containerHeight;
+            
+            // 重新绘制画布内容（如果有保存的话）
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // 初始化画布
+        function initCanvas() {
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // 设置线条样式
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+        }
+
+        // 绘画函数
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            // 获取鼠标/触摸位置
+            const x = e.offsetX || e.touches[0].clientX - canvas.getBoundingClientRect().left;
+            const y = e.offsetY || e.touches[0].clientY - canvas.getBoundingClientRect().top;
+            
+            // 设置线条样式
+            ctx.lineWidth = brushSize;
+            
+            if (rainbowMode) {
+                hue = (hue + 1) % 360;
+                ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
+            } else {
+                ctx.strokeStyle = currentColor;
+            }
+            
+            // 绘制线条
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            
+            // 更新位置
+            lastX = x;
+            lastY = y;
+            
+            // 特效
+            if (sparkleEffect) {
+                createSparkle(x, y);
+            }
+            
+            // 声音反馈
+            if (soundEffect) {
+                playSound(y);
+            }
+        }
+
+        // 创建闪光效果
+        function createSparkle(x, y) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            
+            // 设置粒子样式
+            const size = Math.random() * 10 + 5;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.backgroundColor = rainbowMode ? `hsl(${Math.random() * 360}, 100%, 50%)` : currentColor;
+            
+            // 设置粒子位置
+            const rect = canvas.getBoundingClientRect();
+            particle.style.left = `${x + rect.left}px`;
+            particle.style.top = `${y + rect.top}px`;
+            
+            // 添加到文档
+            visualFeedback.appendChild(particle);
+            
+            // 移除粒子
+            setTimeout(() => {
+                particle.remove();
+            }, 3000);
+        }
+
+        // 声音反馈
+        function playSound(y) {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            // 停止之前的声音
+            if (oscillator) {
+                oscillator.stop();
+            }
+            
+            // 创建新的振荡器
+            oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            // 设置频率（根据Y位置）
+            const frequency = 100 + (canvas.height - y) * 2;
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            
+            // 设置音量
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
+            
+            // 连接并播放
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.start();
+            
+            // 0.5秒后停止
+            setTimeout(() => {
+                oscillator.stop();
+            }, 500);
+        }
+
+        // 事件监听器
+        function setupEventListeners() {
+            // 鼠标事件
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+            
+            // 触摸事件
+            canvas.addEventListener('touchstart', startDrawingTouch);
+            canvas.addEventListener('touchmove', drawTouch);
+            canvas.addEventListener('touchend', stopDrawing);
+            
+            // 颜色选择
+            colorOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    // 更新活跃状态
+                    colorOptions.forEach(opt => opt.classList.remove('active'));
+                    option.classList.add('active');
+                    
+                    // 设置颜色
+                    currentColor = option.dataset.color;
+                    rainbowMode = false;
+                    rainbowModeButton.classList.remove('active');
+                });
+            });
+            
+            // 画笔大小
+            brushSizeInput.addEventListener('input', () => {
+                brushSize = brushSizeInput.value;
+            });
+            
+            // 清除画布
+            clearButton.addEventListener('click', () => {
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            });
+            
+            // 保存作品
+            saveButton.addEventListener('click', () => {
+                const link = document.createElement('a');
+                link.download = '我的绘画作品.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+            
+            // 特效按钮
+            rainbowModeButton.addEventListener('click', () => {
+                rainbowMode = !rainbowMode;
+                rainbowModeButton.classList.toggle('active');
+            });
+            
+            sparkleEffectButton.addEventListener('click', () => {
+                sparkleEffect = !sparkleEffect;
+                sparkleEffectButton.classList.toggle('active');
+            });
+            
+            soundEffectButton.addEventListener('click', () => {
+                soundEffect = !soundEffect;
+                soundEffectButton.classList.toggle('active');
+            });
+        }
+
+        // 开始绘画（鼠标）
+        function startDrawing(e) {
+            isDrawing = true;
+            lastX = e.offsetX;
+            lastY = e.offsetY;
+        }
+        
+        // 开始绘画（触摸）
+        function startDrawingTouch(e) {
+            e.preventDefault();
+            isDrawing = true;
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            lastX = touch.clientX - rect.left;
+            lastY = touch.clientY - rect.top;
+        }
+        
+        // 触摸绘画
+        function drawTouch(e) {
+            e.preventDefault();
+            draw(e);
+        }
+        
+        // 停止绘画
+        function stopDrawing() {
+            isDrawing = false;
+        }
+        
+        // 初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            initCanvas();
+            setupEventListeners();
+        });
+    </script>
+</body>
+</html>
